@@ -1,0 +1,168 @@
+(ClicnicManagementSystem
+	<:staffs[] Staff>
+	<:customers[] Customer>
+	<:getCustomerById
+		[IF-NEEDED
+			{foreach customer in SELF:customers
+				if customer.Id equals Id
+					then return customer}]>
+	<:getStaffById
+		[IF-NEEDED
+			{foreach staff in SELF:staffs
+				if staff.Id equals Id
+					then return staff}]>
+	<:addNewDoctor
+		[IF-NEEDED
+			{SELF:staffs.Add(Create new Doctor
+				with id = _id
+				and with name = _name
+				and with gender = _gender
+				and with baseSalary = _baseSalary
+				and with vacationBalance = _vacationBalance
+				and with speciality = _speciality
+				...)}]>
+	<:addNewNurse
+		[IF-NEEDED
+			{SELF:staffs.Add(Create new Nurse
+				with id = _id
+				and with name = _name
+				and with gender = _gender
+				and with baseSalary = _baseSalary
+				and with vacationBalance = _vacationBalance
+				...)}]>
+	<:addNewReceptionist
+		[IF-NEEDED
+			{SELF:staffs.Add(Create new Receptionist
+				with id = _id
+				and with name = _name
+				and with gender = _gender
+				and with baseSalary = _baseSalary
+				and with vacationBalance = _vacationBalance
+				...)}]>
+	<:addNewPatient
+		[IF-NEEDED
+			{SELF:customers.Add(Create new Patient
+				with id = _id
+				and with name = _name
+				and with gender = _gender
+				...)}]>...)
+
+(Transaction
+	<:number Number>
+	<:date Date>
+	<:price Price>
+	<:details String>...)
+
+(Customer
+	<:transactions[] Transaction>
+	<:id Number>
+	<:name String>
+	<:gender Gender>
+	<:newTransaction
+		[IF-NEEDED
+			{SELF:transactions.Add(Create new Transaction
+				with number = transactions.Count
+				and with date = Date.Now
+				and with price = _price
+				and with details = _details
+				...)}]>
+	<:calculateIncomeByDay
+		[IF-NEEDED
+			{sum=0
+			foreach transaction in SELF:transactions
+				if transaction.date equals _day
+					then sum+=transaction.price
+			return sum}]>...)
+
+(Treatment
+	<:name String>
+	<:id Number>
+	<:description String>
+	<:byDoctor Doctor>...)
+
+(Patient
+	<:IS-A Customer>
+	<:treatments[] Treatment>
+	<:newTreatment
+		[IF-NEEDED
+			{SELF:treatments.Add(Create new Treatment
+				with name = _name
+				and with id = treatments.Count
+				and with description = _description 
+				and with byDoctor = _doctor
+				...)}]>
+	<:getTreatmentById
+		[IF-NEEDED
+			{foreach treatment in SELF:treatments
+				if treatment.Id equals Id
+					then return treatment}]>
+					
+	<:deleteTreatment
+		[IF-NEEDED
+			{SELF:treatments.Remove(SELF:getTreatmentById(Id))}]>...)
+
+(Leave
+	<:date Date>
+	<:time Time>
+	<:reason String>...)
+
+(Staff
+	<:id Number>
+	<:name String>
+	<:baseSalary Price>
+	<:leavs[] Leave>
+	<:vacationBalance 
+		[IF-ADDED
+			{SELF:vacationBalance=SELF:vacationBalance*daysInYearRemaining/365}]>
+	<:createNewLeave
+		[IF-NEEDED
+			{SELF:leavs.Add(Create new Leave
+				with date = _date
+				and with time = _time
+				and with reason = _reason
+				...)}]>
+	<:calculateSalary
+		[IF-NEEDED
+			{sum = 0
+			hourPrice = 10$
+			foreach leave in SELF:leavs
+				if leave.date.mounth equals _mounth
+					then sum += leave.time.hour
+			return SELF:baseSalary-hourPrice*sum}]>...)
+			
+(Doctor
+	<:IS-A Staff>
+	<:speciality String>
+	<:calculateSalary
+		[IF-NEEDED
+			{sum = 0
+			hourPrice = 20$
+			foreach leave in SELF:leavs
+				if leave.date.mounth equals _mounth
+					then sum += leave.time.hour
+			return SELF:baseSalary-hourPrice*sum}]>...)
+			
+(Nurse
+	<:IS-A Staff>
+	<:calculateSalary
+		[IF-NEEDED
+			{sum = 0
+			hourPrice = 15$
+			foreach leave in SELF:leavs
+				if leave.date.mounth equals _mounth
+					then sum += leave.time.hour
+			return SELF:baseSalary-hourPrice*sum}]>...)
+
+(ibnSinaSpecializedHospital
+	<:INSTANCE-OF ClicnicManagementSystem>
+	<:staffs []>...)
+
+
+ibnSinaSpecializedHospital.addNewDoctor(
+	with _id = 403919655
+	and with _name = yazan jarrar
+	and with _gender = male
+	and with _baseSalary = 10000$
+	and with _vacationBalance = 14
+	and with _speciality = general
+	)
